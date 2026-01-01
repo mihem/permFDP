@@ -8,6 +8,7 @@ Authors@R: c(person("Steven", "Shuken", email = "srshuken@gmail.com", role = c("
 Description: An R package for correcting p-values for multiple hypothesis testing in 
        comparative quantitative omics experiments using permutation-based FDP estimation.
 License: GPL (>= 2)
+Encoding: UTF-8
 Imports: Rcpp (>= 1.0.9)
 LinkingTo: Rcpp, BH
 RoxygenNote: 7.3.3
