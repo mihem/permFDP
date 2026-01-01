@@ -15,19 +15,24 @@ NULL
 #' @keywords p-values FDP FDR permutation
 #' @export
 #' @examples
-#' controlVals = matrix(rnorm(300), ncol = 3, nrow = 100)
-#' testVals = matrix(rnorm(300, mean = 3), ncol = 3, nrow = 100)
-#' intOnly = data.frame(cbind(controlVals, testVals))
-#' myDesign = c(1,1,1,2,2,2)
-#' pVals = c()
+#' controlVals <- matrix(rnorm(300), ncol = 3, nrow = 100)
+#' testVals <- matrix(rnorm(300, mean = 3), ncol = 3, nrow = 100)
+#' intOnly <- data.frame(cbind(controlVals, testVals))
+#' myDesign <- c(1, 1, 1, 2, 2, 2)
+#' pVals <- c()
 #' for (row in 1:nrow(intOnly)) {
-#' pVals = c(pVals, t.test(intOnly[row, 1:3], intOnly[row, 4:6])$p.value)
+#'   pVals <- c(pVals, t.test(intOnly[row, 1:3], intOnly[row, 4:6])$p.value)
 #' }
-#' threshold = 0.05
-#' corrThreshold = permFDP::permFDP.adjust.threshold(pVals, threshold, myDesign, intOnly, 100)
+#' threshold <- 0.05
+#' corrThreshold <- permFDP::permFDP.adjust.threshold(pVals, threshold, myDesign, intOnly, 100)
 #' corrThreshold
-
-permFDP.adjust.threshold = function(pVals, threshold, myDesign, intOnly, nPerms) {
+permFDP.adjust.threshold <- function(
+  pVals,
+  threshold,
+  myDesign,
+  intOnly,
+  nPerms
+) {
   # Validate pVals
   if (missing(pVals) || is.null(pVals)) {
     stop("pVals is required and cannot be NULL")
@@ -44,7 +49,7 @@ permFDP.adjust.threshold = function(pVals, threshold, myDesign, intOnly, nPerms)
   if (any(pVals < 0 | pVals > 1)) {
     stop("All p-values must be between 0 and 1")
   }
-  
+
   # Validate threshold
   if (missing(threshold) || is.null(threshold)) {
     stop("threshold is required and cannot be NULL")
@@ -58,7 +63,7 @@ permFDP.adjust.threshold = function(pVals, threshold, myDesign, intOnly, nPerms)
   if (threshold <= 0 || threshold >= 1) {
     stop("threshold must be between 0 and 1 (exclusive)")
   }
-  
+
   # Validate myDesign
   if (missing(myDesign) || is.null(myDesign)) {
     stop("myDesign is required and cannot be NULL")
@@ -75,7 +80,7 @@ permFDP.adjust.threshold = function(pVals, threshold, myDesign, intOnly, nPerms)
   if (!all(myDesign %in% c(1, 2))) {
     stop("myDesign must contain only values 1 (control) and 2 (test)")
   }
-  
+
   # Validate intOnly
   if (missing(intOnly) || is.null(intOnly)) {
     stop("intOnly is required and cannot be NULL")
@@ -86,7 +91,7 @@ permFDP.adjust.threshold = function(pVals, threshold, myDesign, intOnly, nPerms)
   if (nrow(intOnly) == 0 || ncol(intOnly) == 0) {
     stop("intOnly cannot be empty")
   }
-  
+
   # Validate nPerms
   if (missing(nPerms) || is.null(nPerms)) {
     stop("nPerms is required and cannot be NULL")
@@ -104,29 +109,49 @@ permFDP.adjust.threshold = function(pVals, threshold, myDesign, intOnly, nPerms)
     stop("nPerms must be at least 1 (100 or more recommended)")
   }
   if (nPerms < 100) {
-    warning("nPerms < 100 may produce unreliable results. At least 100 permutations are recommended.")
+    warning(
+      "nPerms < 100 may produce unreliable results. At least 100 permutations are recommended."
+    )
   }
-  
+
   # Validate consistency between inputs
   if (length(pVals) != nrow(intOnly)) {
-    stop(sprintf("Length of pVals (%d) must match number of rows in intOnly (%d)", 
-                 length(pVals), nrow(intOnly)))
+    stop(sprintf(
+      "Length of pVals (%d) must match number of rows in intOnly (%d)",
+      length(pVals),
+      nrow(intOnly)
+    ))
   }
-  
+
   if (length(myDesign) != ncol(intOnly)) {
-    stop(sprintf("Length of myDesign (%d) must match number of columns in intOnly (%d)", 
-                 length(myDesign), ncol(intOnly)))
+    stop(sprintf(
+      "Length of myDesign (%d) must match number of columns in intOnly (%d)",
+      length(myDesign),
+      ncol(intOnly)
+    ))
   }
-  
-  nc = length(which(myDesign == 1))
-  nt = length(which(myDesign == 2))
-  
+
+  nc <- length(which(myDesign == 1))
+  nt <- length(which(myDesign == 2))
+
   if (nc < 2 || nt < 2) {
-    stop(sprintf("Both control (n=%d) and test (n=%d) groups must have at least 2 samples", nc, nt))
+    stop(sprintf(
+      "Both control (n=%d) and test (n=%d) groups must have at least 2 samples",
+      nc,
+      nt
+    ))
   }
-  
+
   # All validations passed - proceed with computation
-  pVals = pVals[order(pVals)]
-  intMatrix = as.matrix(intOnly)
-  return(permFDRAdjustCpp(pVals, threshold, myDesign, intMatrix, nPerms, nc, nt))
+  pVals <- pVals[order(pVals)]
+  intMatrix <- as.matrix(intOnly)
+  return(permFDRAdjustCpp(
+    pVals,
+    threshold,
+    myDesign,
+    intMatrix,
+    nPerms,
+    nc,
+    nt
+  ))
 }
