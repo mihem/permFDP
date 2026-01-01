@@ -28,9 +28,105 @@ NULL
 #' corrThreshold
 
 permFDP.adjust.threshold = function(pVals, threshold, myDesign, intOnly, nPerms) {
-  pVals = pVals[order(pVals)]
-  intMatrix = as.matrix(intOnly)
+  # Validate pVals
+  if (missing(pVals) || is.null(pVals)) {
+    stop("pVals is required and cannot be NULL")
+  }
+  if (!is.numeric(pVals)) {
+    stop("pVals must be a numeric vector")
+  }
+  if (length(pVals) == 0) {
+    stop("pVals cannot be empty")
+  }
+  if (any(is.na(pVals))) {
+    stop("pVals contains NA values")
+  }
+  if (any(pVals < 0 | pVals > 1)) {
+    stop("All p-values must be between 0 and 1")
+  }
+  
+  # Validate threshold
+  if (missing(threshold) || is.null(threshold)) {
+    stop("threshold is required and cannot be NULL")
+  }
+  if (!is.numeric(threshold) || length(threshold) != 1) {
+    stop("threshold must be a single numeric value")
+  }
+  if (is.na(threshold)) {
+    stop("threshold cannot be NA")
+  }
+  if (threshold <= 0 || threshold >= 1) {
+    stop("threshold must be between 0 and 1 (exclusive)")
+  }
+  
+  # Validate myDesign
+  if (missing(myDesign) || is.null(myDesign)) {
+    stop("myDesign is required and cannot be NULL")
+  }
+  if (!is.numeric(myDesign)) {
+    stop("myDesign must be a numeric vector")
+  }
+  if (length(myDesign) == 0) {
+    stop("myDesign cannot be empty")
+  }
+  if (any(is.na(myDesign))) {
+    stop("myDesign contains NA values")
+  }
+  if (!all(myDesign %in% c(1, 2))) {
+    stop("myDesign must contain only values 1 (control) and 2 (test)")
+  }
+  
+  # Validate intOnly
+  if (missing(intOnly) || is.null(intOnly)) {
+    stop("intOnly is required and cannot be NULL")
+  }
+  if (!is.data.frame(intOnly) && !is.matrix(intOnly)) {
+    stop("intOnly must be a data frame or matrix")
+  }
+  if (nrow(intOnly) == 0 || ncol(intOnly) == 0) {
+    stop("intOnly cannot be empty")
+  }
+  
+  # Validate nPerms
+  if (missing(nPerms) || is.null(nPerms)) {
+    stop("nPerms is required and cannot be NULL")
+  }
+  if (!is.numeric(nPerms) || length(nPerms) != 1) {
+    stop("nPerms must be a single numeric value")
+  }
+  if (is.na(nPerms)) {
+    stop("nPerms cannot be NA")
+  }
+  if (nPerms != as.integer(nPerms)) {
+    stop("nPerms must be an integer")
+  }
+  if (nPerms < 1) {
+    stop("nPerms must be at least 1 (100 or more recommended)")
+  }
+  if (nPerms < 100) {
+    warning("nPerms < 100 may produce unreliable results. At least 100 permutations are recommended.")
+  }
+  
+  # Validate consistency between inputs
+  if (length(pVals) != nrow(intOnly)) {
+    stop(sprintf("Length of pVals (%d) must match number of rows in intOnly (%d)", 
+                 length(pVals), nrow(intOnly)))
+  }
+  
+  if (length(myDesign) != ncol(intOnly)) {
+    stop(sprintf("Length of myDesign (%d) must match number of columns in intOnly (%d)", 
+                 length(myDesign), ncol(intOnly)))
+  }
+  
   nc = length(which(myDesign == 1))
   nt = length(which(myDesign == 2))
+  
+  if (nc < 2 || nt < 2) {
+    stop(sprintf("Both control (n=%d) and test (n=%d) groups must have at least 2 samples", nc, nt))
+  }
+  
+  # All validations passed - proceed with computation
+  pVals = pVals[order(pVals)]
+  intMatrix = as.matrix(intOnly)
   return(permFDRAdjustCpp(pVals, threshold, myDesign, intMatrix, nPerms, nc, nt))
 }
