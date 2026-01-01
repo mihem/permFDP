@@ -49,11 +49,11 @@ permFDP.adjust.threshold = function(pVals, threshold, myDesign, intOnly, nPerms)
   if (missing(threshold) || is.null(threshold)) {
     stop("threshold is required and cannot be NULL")
   }
+  if (length(threshold) == 1 && is.na(threshold)) {
+    stop("threshold cannot be NA")
+  }
   if (!is.numeric(threshold) || length(threshold) != 1) {
     stop("threshold must be a single numeric value")
-  }
-  if (is.na(threshold)) {
-    stop("threshold cannot be NA")
   }
   if (threshold <= 0 || threshold >= 1) {
     stop("threshold must be between 0 and 1 (exclusive)")
@@ -91,11 +91,11 @@ permFDP.adjust.threshold = function(pVals, threshold, myDesign, intOnly, nPerms)
   if (missing(nPerms) || is.null(nPerms)) {
     stop("nPerms is required and cannot be NULL")
   }
+  if (length(nPerms) == 1 && is.na(nPerms)) {
+    stop("nPerms cannot be NA")
+  }
   if (!is.numeric(nPerms) || length(nPerms) != 1) {
     stop("nPerms must be a single numeric value")
-  }
-  if (is.na(nPerms)) {
-    stop("nPerms cannot be NA")
   }
   if (nPerms != as.integer(nPerms)) {
     stop("nPerms must be an integer")

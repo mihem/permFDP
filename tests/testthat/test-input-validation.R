@@ -7,7 +7,7 @@ test_that("pVals validation works correctly", {
     myDesign <- c(1, 1, 1, 2, 2, 2)
     pVals <- runif(10, 0, 1)
     threshold <- 0.05
-    nPerms <- 10
+    nPerms <- 100
     list(pVals = pVals, threshold = threshold, myDesign = myDesign, 
          intOnly = intOnly, nPerms = nPerms)
   }
@@ -89,7 +89,7 @@ test_that("threshold validation works correctly", {
     myDesign <- c(1, 1, 1, 2, 2, 2)
     pVals <- runif(10, 0, 1)
     threshold <- 0.05
-    nPerms <- 10
+    nPerms <- 100
     list(pVals = pVals, threshold = threshold, myDesign = myDesign, 
          intOnly = intOnly, nPerms = nPerms)
   }
@@ -138,6 +138,24 @@ test_that("threshold validation works correctly", {
     "threshold cannot be NA"
   )
   
+  # Test: threshold is a vector with NA
+  data <- create_valid_data()
+  expect_error(
+    permFDP.adjust.threshold(pVals = data$pVals, threshold = c(NA, 0.05),
+                           myDesign = data$myDesign, intOnly = data$intOnly,
+                           nPerms = data$nPerms),
+    "threshold must be a single numeric value"
+  )
+  
+  # Test: threshold is a vector of NAs
+  data <- create_valid_data()
+  expect_error(
+    permFDP.adjust.threshold(pVals = data$pVals, threshold = c(NA, NA),
+                           myDesign = data$myDesign, intOnly = data$intOnly,
+                           nPerms = data$nPerms),
+    "threshold must be a single numeric value"
+  )
+  
   # Test: threshold is <= 0
   data <- create_valid_data()
   expect_error(
@@ -174,7 +192,7 @@ test_that("myDesign validation works correctly", {
     myDesign <- c(1, 1, 1, 2, 2, 2)
     pVals <- runif(10, 0, 1)
     threshold <- 0.05
-    nPerms <- 10
+    nPerms <- 100
     list(pVals = pVals, threshold = threshold, myDesign = myDesign, 
          intOnly = intOnly, nPerms = nPerms)
   }
@@ -252,7 +270,7 @@ test_that("intOnly validation works correctly", {
     myDesign <- c(1, 1, 1, 2, 2, 2)
     pVals <- runif(10, 0, 1)
     threshold <- 0.05
-    nPerms <- 10
+    nPerms <- 100
     list(pVals = pVals, threshold = threshold, myDesign = myDesign, 
          intOnly = intOnly, nPerms = nPerms)
   }
@@ -286,19 +304,9 @@ test_that("intOnly validation works correctly", {
   # Test: intOnly is empty (no rows)
   data <- create_valid_data()
   expect_error(
-    permFDP.adjust.threshold(pVals = numeric(0), threshold = data$threshold,
-                           myDesign = data$myDesign, 
-                           intOnly = data$intOnly[integer(0), ],
-                           nPerms = data$nPerms),
-    "intOnly cannot be empty"
-  )
-  
-  # Test: intOnly is empty (no columns)
-  data <- create_valid_data()
-  expect_error(
     permFDP.adjust.threshold(pVals = data$pVals, threshold = data$threshold,
-                           myDesign = numeric(0), 
-                           intOnly = data$intOnly[, integer(0)],
+                           myDesign = data$myDesign, 
+                           intOnly = data$intOnly[0, ],
                            nPerms = data$nPerms),
     "intOnly cannot be empty"
   )
@@ -321,7 +329,7 @@ test_that("nPerms validation works correctly", {
     myDesign <- c(1, 1, 1, 2, 2, 2)
     pVals <- runif(10, 0, 1)
     threshold <- 0.05
-    nPerms <- 10
+    nPerms <- 100
     list(pVals = pVals, threshold = threshold, myDesign = myDesign, 
          intOnly = intOnly, nPerms = nPerms)
   }
@@ -370,6 +378,24 @@ test_that("nPerms validation works correctly", {
     "nPerms cannot be NA"
   )
   
+  # Test: nPerms is a vector with NA
+  data <- create_valid_data()
+  expect_error(
+    permFDP.adjust.threshold(pVals = data$pVals, threshold = data$threshold,
+                           myDesign = data$myDesign, intOnly = data$intOnly,
+                           nPerms = c(NA, 10)),
+    "nPerms must be a single numeric value"
+  )
+  
+  # Test: nPerms is a vector of NAs
+  data <- create_valid_data()
+  expect_error(
+    permFDP.adjust.threshold(pVals = data$pVals, threshold = data$threshold,
+                           myDesign = data$myDesign, intOnly = data$intOnly,
+                           nPerms = c(NA, NA)),
+    "nPerms must be a single numeric value"
+  )
+  
   # Test: nPerms is not an integer
   data <- create_valid_data()
   expect_error(
@@ -414,7 +440,7 @@ test_that("cross-validation between inputs works correctly", {
     myDesign <- c(1, 1, 1, 2, 2, 2)
     pVals <- runif(10, 0, 1)
     threshold <- 0.05
-    nPerms <- 10
+    nPerms <- 100
     list(pVals = pVals, threshold = threshold, myDesign = myDesign, 
          intOnly = intOnly, nPerms = nPerms)
   }

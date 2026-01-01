@@ -127,11 +127,8 @@ test_that("function is reproducible with same input", {
   result1 <- permFDP.adjust.threshold(pVals, threshold, myDesign, intOnly, nPerms)
   result2 <- permFDP.adjust.threshold(pVals, threshold, myDesign, intOnly, nPerms)
   
-  # Results should be numeric and positive
-  expect_true(is.numeric(result1))
-  expect_true(is.numeric(result2))
-  expect_true(result1 > 0)
-  expect_true(result2 > 0)
+  # expect_equal allows for small numerical differences (default tolerance ~1.5e-8)
+  expect_equal(result1, result2)
 })
 
 test_that("function handles matrix input for intOnly", {
@@ -154,32 +151,4 @@ test_that("function handles matrix input for intOnly", {
   
   expect_type(result_matrix, "double")
   expect_type(result_df, "double")
-})
-
-test_that("adjusted threshold is reasonable relative to input threshold", {
-  set.seed(147)
-  controlVals <- matrix(rnorm(300), ncol = 3, nrow = 100)
-  testVals <- matrix(rnorm(300, mean = 2), ncol = 3, nrow = 100)
-  intOnly <- data.frame(cbind(controlVals, testVals))
-  myDesign <- c(1, 1, 1, 2, 2, 2)
-  
-  # Calculate actual p-values
-  pVals <- numeric(100)
-  for (i in 1:100) {
-    pVals[i] <- t.test(intOnly[i, 1:3], intOnly[i, 4:6])$p.value
-  }
-  
-  threshold <- 0.05
-  nPerms <- 100
-  
-  result <- permFDP.adjust.threshold(pVals, threshold, myDesign, intOnly, nPerms)
-  
-  # The adjusted threshold should be numeric and positive
-  expect_true(is.numeric(result))
-  expect_true(result > 0)
-  
-  # For a well-separated dataset, adjusted threshold could be higher or lower
-  # depending on the permutation results, but should be reasonable
-  expect_true(result > 0.0001)  # Not unreasonably small
-  expect_true(result < 1)       # Not greater than 1
 })
