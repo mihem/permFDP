@@ -1,5 +1,3 @@
-Sys.setenv("PKG_CXXFLAGS"="-std=c++17")
-
 #' Permutation-Based FDP Method for Rejection Threshold Correction
 #'
 #' This function controls FDR using the permutation method described in our manuscript. Like the BH method above, it corrects the rejection threshold rather than the p-values themselves.
